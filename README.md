@@ -31,7 +31,11 @@
 ```bash
 $ npm install
 
-Mi primer proyecto
+$ npm i config
+
+$ npm i @types/config
+
+$ npm i @nestjs/mongoose @types/mongoose 
 ```
 
 ## Compile and run the project
