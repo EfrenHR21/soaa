@@ -1,0 +1,4 @@
+{
+    "port" : "3100",
+    "mongodbUrl" : "mongodb+srv://EfrenHR:Efren10@cluster0.5ase3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0" 
+}
