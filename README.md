@@ -30,6 +30,8 @@
 
 ```bash
 $ npm install
+
+Mi primer proyecto
 ```
 
 ## Compile and run the project
