@@ -4,6 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import config from 'config';
+import { AllExceptionFilter } from './httpExceptionFilter';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -13,8 +15,14 @@ import config from 'config';
       w: 1,
       //keepAlive: true,
     }),
+    UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,
+    {
+      provide : 'APP_FILTER',
+      useClass: AllExceptionFilter,
+    }
+  ],
 })
 export class AppModule {}
