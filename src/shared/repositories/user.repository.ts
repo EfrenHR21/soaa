@@ -15,7 +15,19 @@ export class UserRepository {
         return await this.userModel.findOne(query);
     }
 
+    async find(query: any){
+        return await this.userModel.findOne(query);
+    }
+
     async create(data: Record<string,any>){
         return await this.userModel.create(data);
+    }
+
+    async updateOne( query: any, data: Record<string,any>){
+        return await this.userModel.updateOne(query, data);
+    }
+
+    async getUserDetaulsById(id: string){   
+        return await this.userModel.findOne({_id: id});
     }
 }
