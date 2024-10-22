@@ -15,9 +15,9 @@ export class AuthMiddleware implements NestMiddleware {
 
   async use(req: Request | any, res: Response | any, next: NextFunction) {
     try {
-      const token = req.cookie._digi_auth_token;
+      const token = req.cookies._digi_auth_token;
       if (!token) {
-        throw new UnauthorizedException('Unauthorized');
+        throw new UnauthorizedException('Missing auth token');
       }
       const decodedData: any = decodeAuthToken(token);
       const user = await this.userDB.getUserDetaulsById(decodedData.id);
