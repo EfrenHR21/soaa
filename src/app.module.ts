@@ -7,6 +7,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AllExceptionFilter } from './common/httpExceptionFilter';
 import { UsersModule } from './users/users.module';
 import { envs } from 'config/env';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { envs } from 'config/env';
       //keepAlive: true,
     }),
     UsersModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService,

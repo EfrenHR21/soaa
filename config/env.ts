@@ -15,6 +15,20 @@ interface EnvVars {
   FORGOT_PASSWORD: string;
   VERIFY_EMAIL: string;
   ORDER_SOURCES: string;
+
+  CLOUDINARY_URL: string;
+  CLOUD_NAME: 'string';
+  API_KEY: 'string';
+  API_SECRET: 'string';
+  FOLDER_PATH: 'string';
+  PUBLICID_PREFIX: 'string';
+  BIG_SIZE: 'string';
+
+  PUBLISHABLE_KEY: string;
+  SECRET_KEY: string;
+  SUCCESS_URL: string;
+  CANCEL_URL: string;
+  WEBHOOK_SECRET: string;
 }
 
 const envsSchema = joi
@@ -31,6 +45,18 @@ const envsSchema = joi
     FORGOT_PASSWORD: joi.string().required(),
     VERIFY_EMAIL: joi.string().required(),
     ORDER_SOURCES: joi.string().required(),
+    CLOUDINARY_URL: joi.string().required(),
+    CLOUD_NAME: joi.string().required(),
+    API_KEY: joi.string().required(),
+    API_SECRET: joi.string().required(),
+    FOLDER_PATH: joi.string().required(),
+    PUBLICID_PREFIX: joi.string().required(),
+    BIG_SIZE: joi.string().required(),
+    PUBLISHABLE_KEY: joi.string().required(),
+    SECRET_KEY: joi.string().required(),
+    SUCCESS_URL: joi.string().required(),
+    CANCEL_URL: joi.string().required(),
+    WEBHOOK_SECRET: joi.string().required(),
   })
   .unknown(true);
 
@@ -57,4 +83,16 @@ export const envs = {
   forgotPassword: envVars.FORGOT_PASSWORD,
   verifyEmail: envVars.VERIFY_EMAIL,
   orderSuccess: envVars.ORDER_SOURCES,
+  cloudinaryUrl: envVars.CLOUDINARY_URL,
+  cloudName: envVars.CLOUD_NAME,
+  apiKey: envVars.API_KEY,
+  apiSecret: envVars.API_SECRET,
+  folderPath: envVars.FOLDER_PATH,
+  publicIdPrefix: envVars.PUBLICID_PREFIX,
+  bigSize: envVars.BIG_SIZE,
+  publishableKey: envVars.PUBLISHABLE_KEY,
+  secretKey: envVars.SECRET_KEY,
+  successUrl: envVars.SUCCESS_URL,
+  cancelUrl: envVars.CANCEL_URL,
+  webhookSecret: envVars.WEBHOOK_SECRET,
 };

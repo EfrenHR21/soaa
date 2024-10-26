@@ -13,5 +13,20 @@
             "verifyEmail": "verify-email-template",
             "orderSuccess":"order-success"
         }   
+    },
+    "cloudiary": {
+        "cloud_name": "",
+        "api_key": "",
+        "api_secret": "",
+        "folderPath":"",
+        "publicId_prefix":"",
+        "bigSize": "400x400"
+    },
+    "stripe": {
+        "publishable_key":"",
+        "secretKey": "",
+        "succesUrl": "",
+        "cancelUrl": "",
+        "webhook_secret":""
     }
 }
