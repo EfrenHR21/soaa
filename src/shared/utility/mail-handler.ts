@@ -1,8 +1,9 @@
 /* eslint-disable prettier/prettier */
 
 import FormData from "form-data";
-import config from 'config';
+/* import config from 'config'; */
 import axios from "axios";
+import { envs } from "config/env";
 
 
 export const sendEmail = async(
@@ -25,12 +26,12 @@ export const sendEmail = async(
     });
 
     const username = 'api';
-    const password = config.get('emailService.privateApiKey');
+    const password = envs.privateApiKey;
     const token = Buffer.from(`${username}:${password}`).toString('base64');
 
     const response = await axios({
         method: 'post',
-        url: `https://api.mailgun.net/v3/${config.get('emailService.testDomain')}/messages`,
+        url: `https://api.mailgun.net/v3/${envs.testDomain}/messages`,
         headers:{
             Autorization: `Basic ${token}`,
             contentType: 'multipart/form-data',

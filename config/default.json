@@ -3,6 +3,7 @@
     "mongodbUrl" : "mongodb+srv://EfrenHR:Efren10@cluster0.5ase3.mongodb.net/SOA?retryWrites=true&w=majority&appName=Cluster0", 
     "adminSecretToken": "admin@123",
     "justSecret":"secretTest@123456",
+    "loginLink": "http://localhost:3000/auth",
     "emailService": {
         "testDomain" : "sandbox737df8377dd44d7ab5d4ad340942e8c9.mailgun.org",
         "privateApiKey": "7dc799c468eff5d64be295fd48fe1090",
@@ -12,5 +13,20 @@
             "verifyEmail": "verify-email-template",
             "orderSuccess":"order-success"
         }   
+    },
+    "cloudiary": {
+        "cloud_name": "",
+        "api_key": "",
+        "api_secret": "",
+        "folderPath":"",
+        "publicId_prefix":"",
+        "bigSize": "400x400"
+    },
+    "stripe": {
+        "publishable_key":"",
+        "secretKey": "",
+        "succesUrl": "",
+        "cancelUrl": "",
+        "webhook_secret":""
     }
 }
