@@ -67,8 +67,11 @@ export class Products {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ required: true })
-  image: string;
+  @Prop({
+    default:
+      'https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg',
+  })
+  image?: string;
 
   @Prop({
     required: true,

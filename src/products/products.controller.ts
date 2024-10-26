@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { userTypes } from 'src/shared/schema/users';
 import { Roles } from 'src/shared/middleware/decorators/role.decorator';
 
@@ -36,7 +35,11 @@ export class ProductsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+  @Roles(userTypes.ADMIN)
+  async update(
+    @Param('id') id: string,
+    @Body() updateProductDto: CreateProductDto,
+  ) {
     return this.productsService.update(+id, updateProductDto);
   }
 

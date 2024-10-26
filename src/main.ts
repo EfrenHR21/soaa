@@ -12,6 +12,7 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
+  app.setGlobalPrefix(envs.appPrefix )
   app.useGlobalInterceptors(new TransformationInterceptor());
   await app.listen(envs.port);
 
