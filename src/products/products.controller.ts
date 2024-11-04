@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Controller,
   Get,
@@ -7,11 +8,18 @@ import {
   Param,
   Delete,
   HttpCode,
+  Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
-import { userTypes } from 'src/shared/schema/users';
 import { Roles } from 'src/shared/middleware/decorators/role.decorator';
+import { userTypes } from 'src/shared/schema/users';
+import { GetProductQueryDto } from './dto/get-product-query-dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import config from 'config';
+import { ProductSkuDto, ProductSkuDtoArr } from './dto/product-sku.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -21,17 +29,17 @@ export class ProductsController {
   @HttpCode(201)
   @Roles(userTypes.ADMIN)
   async create(@Body() createProductDto: CreateProductDto) {
-    return await this.productsService.create(createProductDto);
+    return await this.productsService.createProduct(createProductDto);
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Query() query: GetProductQueryDto) {
+    return this.productsService.findAllProducts(query);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return this.productsService.findOneProduct(id);
   }
 
   @Patch(':id')
@@ -40,11 +48,40 @@ export class ProductsController {
     @Param('id') id: string,
     @Body() updateProductDto: CreateProductDto,
   ) {
-    return this.productsService.update(+id, updateProductDto);
+    return await this.productsService.updateProduct(id, updateProductDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.productsService.removeProduct(id);
   }
+
+  @Post('/:id/image')
+  @Roles(userTypes.ADMIN)
+  @UseInterceptors(
+    FileInterceptor('productImage', {
+      dest: config.get('fileStoragePath'),
+      limits: {
+        fileSize: 3145728, // 3 MB
+      },
+    }),
+  )
+  async uploadProductImage(@Param('id') id: string,
+  @UploadedFile() file: ParameterDecorator,
+) {
+  return await this.productsService.uploadProductImage(id, file);
+}
+
+@Post('/:productId/skus')
+  @Roles(userTypes.ADMIN)
+  async updateProductSku(
+    @Param('productId') productId: string,
+    @Body() updateProductSkuDto: ProductSkuDtoArr,
+  ) {
+    return await this.productsService.updateProductSku(
+      productId,
+      updateProductSkuDto,
+    );
+  }
+  
 }
