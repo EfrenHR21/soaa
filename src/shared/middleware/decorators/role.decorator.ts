@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { SetMetadata } from '@nestjs/common';
 import { userTypes } from 'src/shared/schema/users';
 
