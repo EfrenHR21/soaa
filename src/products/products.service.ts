@@ -10,7 +10,7 @@ import qs2m from 'qs-to-mongo';
 import cloudinary from 'cloudinary';
 import config from 'config';
 import { unlinkSync } from 'fs';
-import { ProductSkuDtoArr } from './dto/product-sku.dto';
+import { ProductSkuDto, ProductSkuDtoArr } from './dto/product-sku.dto';
 
 @Injectable()
 export class ProductsService {
@@ -270,4 +270,166 @@ export class ProductsService {
     }
   }
   
+  async updateProductSkuById(
+    productId: string,
+    skuId: string,
+    data: ProductSkuDto,
+  ) {
+    try {
+      const product = await this.productDB.findOne({ _id: productId });
+      if (!product) {
+        throw new Error('Product does not exist');
+      }
+
+      const sku = product.skuDetails.find((sku) => sku._id == skuId);
+      if (!sku) {
+        throw new Error('Sku does not exist');
+      }
+
+      if (data.price !== sku.price) {
+        const priceDetails = await this.stripeClient.prices.create({
+          unit_amount: data.price * 100,
+          currency: 'inr',
+          product: product.stripeProductId,
+          metadata: {
+            skuCode: sku.skuCode,
+            lifetime: data.lifetime + '',
+            productId: productId,
+            price: data.price,
+            productName: product.productName,
+            productImage: product.image,
+          },
+        });
+
+        data.stripePriceId = priceDetails.id;
+      }
+
+      const dataForUpdate = {};
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          dataForUpdate[`skuDetails.$.${key}`] = data[key];
+        }
+      }
+
+      const result = await this.productDB.findOneAndUpdate(
+        { _id: productId, 'skuDetails._id': skuId },
+        { $set: dataForUpdate },
+      );
+
+      return {
+        message: 'Product sku updated successfully',
+        success: true,
+        result,
+      };
+    } catch (error) {
+      throw error;
+    }
 }
+
+async addProductSkuLicense(
+  productId: string,
+  skuId: string,
+  licenseKey: string,
+) {
+  try {
+    const product = await this.productDB.findOne({ _id: productId });
+    if (!product) {
+      throw new Error('Product does not exist');
+    }
+
+    const sku = product.skuDetails.find((sku) => sku._id == skuId);
+    if (!sku) {
+      throw new Error('Sku does not exist');
+    }
+
+    const result = await this.productDB.createLicense(
+      productId,
+      skuId,
+      licenseKey,
+    );
+
+    return {
+      message: 'License key added successfully',
+      success: true,
+      result: result,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
+async removeProductSkuLicense(id: string) {
+  try {
+    const result = await this.productDB.removeLicense({ _id: id });
+
+    return {
+      message: 'License key removed successfully',
+      success: true,
+      result: result,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
+async getProductSkuLicenses(productId: string, skuId: string) {
+  try {
+    const product = await this.productDB.findOne({ _id: productId });
+    if (!product) {
+      throw new Error('Product does not exist');
+    }
+
+    const sku = product.skuDetails.find((sku) => sku._id == skuId);
+    if (!sku) {
+      throw new Error('Sku does not exist');
+    }
+
+    const result = await this.productDB.findLicense({
+      product: productId,
+      productSku: skuId,
+    });
+
+    return {
+      message: 'Licenses fetched successfully',
+      success: true,
+      result: result,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
+async updateProductSkuLicense(
+  productId: string,
+  skuId: string,
+  licenseKeyId: string,
+  licenseKey: string,
+) {
+  try {
+    const product = await this.productDB.findOne({ _id: productId });
+    if (!product) {
+      throw new Error('Product does not exist');
+    }
+
+    const sku = product.skuDetails.find((sku) => sku._id == skuId);
+    if (!sku) {
+      throw new Error('Sku does not exist');
+    }
+
+    const result = await this.productDB.updateLicense(
+      { _id: licenseKeyId },
+      { licenseKey: licenseKey },
+    );
+
+    return {
+      message: 'License key updated successfully',
+      success: true,
+      result: result,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
+}
+
