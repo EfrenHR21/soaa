@@ -23,7 +23,7 @@ export class OrdersController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return await this.ordersService.findOne(+id);
+    return await this.ordersService.findOne(id);
   }
 
   @Post('/checkout')

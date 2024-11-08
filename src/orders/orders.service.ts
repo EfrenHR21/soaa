@@ -59,7 +59,7 @@ export class OrdersService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     try {
       const result = await this.orderDB.findOne({ _id: id });
       return {
