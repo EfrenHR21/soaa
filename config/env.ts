@@ -1,5 +1,6 @@
+/* eslint-disable prettier/prettier */
 import 'dotenv/config';
-import * as joi from 'joi';
+import joi from 'joi';
 
 interface EnvVars {
   PORT: string;

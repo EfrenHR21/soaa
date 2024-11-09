@@ -15,11 +15,11 @@
         }   
     },
     "cloudiary": {
-        "cloud_name": "",
-        "api_key": "",
-        "api_secret": "",
-        "folderPath":"",
-        "publicId_prefix":"",
+        "cloud_name": "dlkodlfio",
+        "api_key": "932233998412978",
+        "api_secret": "-rd_DZFslj8sMJSk00303SZtviM",
+        "folderPath":"compra-facil/products",
+        "publicId_prefix":"comprafacil_prods_",
         "bigSize": "400x400"
     },
     "stripe": {
