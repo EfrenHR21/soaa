@@ -11,6 +11,7 @@ import {
   Query,
   UseInterceptors,
   UploadedFile,
+  Put,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -80,6 +81,21 @@ export class ProductsController {
   ) {
     return await this.productsService.updateProductSku(
       productId,
+      updateProductSkuDto,
+    );
+  }
+
+
+  @Put('/:productId/skus/:skuId')
+  @Roles(userTypes.ADMIN)
+  async updateProductSkuById(
+    @Param('productId') productId: string,
+    @Param('skuId') skuId: string,
+    @Body() updateProductSkuDto: ProductSkuDto,
+  ) {
+    return await this.productsService.updateProductSkuById(
+      productId, 
+      skuId, 
       updateProductSkuDto,
     );
   }

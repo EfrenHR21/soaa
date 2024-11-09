@@ -4,6 +4,8 @@
     "adminSecretToken": "admin@123",
     "justSecret":"secretTest@123456",
     "loginLink": "http://localhost:3000/auth",
+    "appPrefix": "/api/v1",
+    "fileStoragePath": "../uploads/",
     "emailService": {
         "testDomain" : "sandbox737df8377dd44d7ab5d4ad340942e8c9.mailgun.org",
         "privateApiKey": "7dc799c468eff5d64be295fd48fe1090",

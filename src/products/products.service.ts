@@ -10,7 +10,7 @@ import qs2m from 'qs-to-mongo';
 import cloudinary from 'cloudinary';
 import config from 'config';
 import { unlinkSync } from 'fs';
-import { ProductSkuDtoArr } from './dto/product-sku.dto';
+import { ProductSkuDto, ProductSkuDtoArr } from './dto/product-sku.dto';
 
 @Injectable()
 export class ProductsService {
@@ -227,6 +227,7 @@ export class ProductsService {
     }
   }
 
+  //this is for create one multiple sku for an product
   async updateProductSku(productId: string, data: ProductSkuDtoArr) {
     try {
       const product = await this.productDB.findOne({ _id: productId });
@@ -267,6 +268,53 @@ export class ProductsService {
       };
     } catch (error) {
       throw error;
+    }
+  }
+
+  async updateProductSkuById(productId: string, skuId: string, data: ProductSkuDto,
+  ) {
+    try{
+      const product = await this.productDB.findOne({ _id: productId });
+      if (!product) {
+        throw new Error('Product does not exist');
+      }
+
+      const sku = product.skuDetails.find((sku) => sku._id === skuId);
+
+      if (!sku) {
+        throw new Error('Sku does not exist');
+      }
+
+      if (data.price !== sku.price) {
+        const priceDetails = await this.stripeClient.prices.create({
+          unit_amount: data.price * 100,
+          currency: 'inr',
+          product: product.stripeProductId,
+          metadata: {
+            skuCode: sku.skuCode,
+            lifetime: sku.lifetime + '',
+            productId: productId,
+            price: data.price,
+            productName: product.productName,
+            productImage: product.image,
+          },
+        })
+        data.stripePriceId = priceDetails.id;
+      }
+
+      await this.productDB.findOneAndUpdate(
+        { _id: productId, 'skuDetails._id': skuId },
+        { $set: { 'skuDetails.$': data } },
+      );
+
+      return {
+        message: 'Product sku updated successfully',
+        success: true,
+        result: null,
+      }
+
+    }catch(error){
+      throw error
     }
   }
   
