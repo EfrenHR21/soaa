@@ -229,6 +229,7 @@ export class ProductsService {
     }
   }
 
+  //this is for create one multiple sku for an product
   async updateProductSku(productId: string, data: ProductSkuDtoArr) {
     try {
       const product = await this.productDB.findOne({ _id: productId });
@@ -271,6 +272,8 @@ export class ProductsService {
       throw error;
     }
   }
+
+  
   
   async updateProductSkuById(
     productId: string,

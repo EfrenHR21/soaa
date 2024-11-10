@@ -6,6 +6,7 @@ import { Orders } from '../schema/orders';
 
 @Injectable()
 export class OrdersRepository {
+
   constructor(
     @InjectModel(Orders.name) private readonly orderModel: Model<Orders>,
   ) {}

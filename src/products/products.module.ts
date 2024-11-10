@@ -14,6 +14,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from 'src/shared/middleware/Guards/role.guard';
 import config from 'config';
 import { License, LicenseSchema } from 'src/shared/schema/license';
+import { OrdersModule } from 'src/orders/orders.module';
 
 @Module({
   controllers: [ProductsController],
@@ -27,6 +28,7 @@ import { License, LicenseSchema } from 'src/shared/schema/license';
     MongooseModule.forFeature([{ name: Products.name, schema: ProductSchema }]),
     MongooseModule.forFeature([{ name: Users.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: License.name, schema: LicenseSchema }]),
+    OrdersModule,
     StripeModule.forRoot({
       apiKey: envs.secretKey,
       apiVersion: '2024-09-30.acacia',
