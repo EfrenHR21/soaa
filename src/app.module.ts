@@ -8,6 +8,7 @@ import { AllExceptionFilter } from './common/httpExceptionFilter';
 import { UsersModule } from './users/users.module';
 import { envs } from 'config/env';
 import { ProductsModule } from './products/products.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ProductsModule } from './products/products.module';
     }),
     UsersModule,
     ProductsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService,

@@ -105,7 +105,7 @@ export class Products {
   avgRating: number;
 
   @Prop([{ type: FeebackersSchema }])
-  feebackDetails: Feebackers[];
+  feedbackDetails: Feebackers[];
 
   @Prop({ type: skuDetailsSchema })
   skuDetails: SkuDetails[];

@@ -5,11 +5,13 @@ import { Model } from 'mongoose';
 import { CreateProductDto } from 'src/products/dto/create-product.dto';
 import { Products } from '../schema/products';
 import { ParsedOptions } from 'qs-to-mongo/dist/query/options-to-mongo';
+import { License } from '../schema/license';
 
 @Injectable()
 export class ProductRepository {
   constructor(
     @InjectModel(Products.name) private readonly productModel: Model<Products>,
+    @InjectModel(License.name) private readonly licenseModel: Model<License>,
   ) {}
 
   async create(product: CreateProductDto) {
@@ -83,4 +85,38 @@ export class ProductRepository {
     return products;
   }
   
+  async createLicense(product: string, productSku: string, licenseKey: string) {
+    const license = await this.licenseModel.create({
+      product,
+      productSku,
+      licenseKey,
+    });
+    return license;
+  }
+
+  async removeLicense(query: any) {
+    const license = await this.licenseModel.findOneAndDelete(query);
+    return license;
+  }
+
+  async findLicense(query: any, limit?: number) {
+    if (limit && limit > 0) {
+      const license = await this.licenseModel.find(query).limit(limit);
+      return license;
+    }
+    const license = await this.licenseModel.find(query);
+    return license;
+  }
+
+  async updateLicense(query: any, update: any) {
+    const license = await this.licenseModel.findOneAndUpdate(query, update, {
+      new: true,
+    });
+    return license;
+  }
+
+  async updateLicenseMany(query: any, data: any) {
+    const license = await this.licenseModel.updateMany(query, data);
+    return license;
+  }
 }
