@@ -25,10 +25,10 @@
         "bigSize": "400x400"
     },
     "stripe": {
-        "publishable_key":"",
-        "secretKey": "",
-        "succesUrl": "",
-        "cancelUrl": "",
-        "webhook_secret":""
+        "publishable_key":"pk_test_51QDGVh2Lo9tWLMwnn9AOunWAkRTxRGTCQ7vwgw7x1FcY4W6pkJxKrbUX9tchAnccplQKvJ2HCR9MGe1pRFf7OYP900M8sikWkU",
+        "secretKey": "sk_test_51QDGVh2Lo9tWLMwnCoVtb1Jq2Breq3uf9s80ce978V5ccmeduLlNn4FNmiW1yRenTiw6afN6PsxJJ9b7HNUtYCBD00yXp5B6Q1",
+        "succesUrl": "http://localhost:3000/order-succes",
+        "cancelUrl": "http://localhost:3000/order-cancel",
+        "webhook_secret":"whsec_wXEcHLsSTQAI2I2E3SPDF5P7GTeH7PU2"
     }
 }

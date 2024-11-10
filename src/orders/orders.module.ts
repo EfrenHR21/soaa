@@ -20,6 +20,7 @@ import { Users, UserSchema } from 'src/shared/schema/users';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthMiddleware } from 'src/shared/middleware/auth';
 import { RolesGuard } from 'src/shared/middleware/Guards/role.guard';
+import { envs } from 'config/env';
 
 @Module({
   controllers: [OrdersController],
@@ -33,10 +34,11 @@ import { RolesGuard } from 'src/shared/middleware/Guards/role.guard';
       useClass: RolesGuard,
     },
   ],
+  exports: [OrdersRepository],
   imports: [
     StripeModule.forRoot({
-      apiKey: config.get('stripe.secret_key'),
-      apiVersion: '2024-10-10', //falta cambiar
+      apiKey: envs.secretKey,
+      apiVersion: '2024-09-30.acacia', //falta cambiar
     }),
     MongooseModule.forFeature([{ name: Products.name, schema: ProductSchema }]),
     MongooseModule.forFeature([{ name: License.name, schema: LicenseSchema }]),
