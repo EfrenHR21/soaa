@@ -200,7 +200,7 @@ export class ProductsService {
 
       const resOfCloudinary = await cloudinary.v2.uploader.upload(file.path, {
         folder: config.get('cloudinary.folderPath'),
-        public_id: `${config.get('cloudinary.publicId_prefix')}${Date.now()}`,
+        public_id: `${envs.publicIdPrefix}${Date.now()}`,
         transformation: [
           {
             width: config.get('cloudinary.bigSize').toString().split('X')[0],
@@ -246,7 +246,7 @@ export class ProductsService {
         if (!data.skuDetails[i].stripePriceId) {
           const stripPriceDetails = await this.stripeClient.prices.create({
             unit_amount: data.skuDetails[i].price * 100,
-            currency: 'inr',
+            currency: 'pen',
             product: product.stripeProductId,
             metadata: {
               skuCode: skuCode,
@@ -296,7 +296,7 @@ export class ProductsService {
       if (data.price !== sku.price) {
         const priceDetails = await this.stripeClient.prices.create({
           unit_amount: data.price * 100,
-          currency: 'inr',
+          currency: 'pen',
           product: product.stripeProductId,
           metadata: {
             skuCode: sku.skuCode,
