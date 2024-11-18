@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   IsArray,
   IsEnum,
@@ -8,8 +7,8 @@ import {
 } from 'class-validator';
 import {
   baseType,
-  categoryTypes,
-  plataformTypes,
+  categoryType,
+  platformType,
   SkuDetails,
 } from 'src/shared/schema/products';
 
@@ -30,13 +29,13 @@ export class CreateProductDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsEnum(categoryTypes)
+  @IsEnum(categoryType)
   category: string;
 
   @IsString()
   @IsNotEmpty()
-  @IsEnum(plataformTypes)
-  plataformTypes: string;
+  @IsEnum(platformType)
+  platformType: string;
 
   @IsString()
   @IsNotEmpty()

@@ -10,6 +10,7 @@ import { checkoutDtoArr } from './dto/checkout.dto';
 import { userTypes } from 'src/shared/schema/users';
 import { orderStatus, paymentStatus } from 'src/shared/schema/orders';
 import { sendEmail } from 'src/shared/utility/mail-handler';
+import { envs } from 'config/env';
 
 
 
@@ -111,8 +112,8 @@ export class OrdersService {
           enabled: true,
         },
         customer_email: user.email,
-        success_url: config.get('stripe.successUrl'),
-        cancel_url: config.get('stripe.cancelUrl'),
+        success_url: envs.successUrl,
+        cancel_url: envs.cancelUrl,
       });
 
       return {
@@ -132,7 +133,7 @@ export class OrdersService {
         event = this.stripeClient.webhooks.constructEvent(
           rawBody,
           sig,
-          config.get('stripe.webhookSecret'),
+          envs.webhookSecret,
         );
       } catch (err) {
         throw new BadRequestException('Webhook Error:', err.message);
