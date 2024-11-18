@@ -1,10 +1,9 @@
-/* eslint-disable prettier/prettier */
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { ProductRepository } from 'src/shared/repositories/product.repository';
 import { InjectStripe } from 'nestjs-stripe';
-import Stripe from 'stripe';
+import { ProductRepository } from 'src/shared/repositories/product.repository';
 import { Products } from 'src/shared/schema/products';
+import Stripe from 'stripe';
+import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductQueryDto } from './dto/get-product-query-dto';
 import qs2m from 'qs-to-mongo';
 import cloudinary from 'cloudinary';
@@ -12,6 +11,7 @@ import config from 'config';
 import { unlinkSync } from 'fs';
 import { ProductSkuDto, ProductSkuDtoArr } from './dto/product-sku.dto';
 import { OrdersRepository } from 'src/shared/repositories/order.repository';
+import { envs } from 'config/env';
 
 @Injectable()
 export class ProductsService {
@@ -19,33 +19,36 @@ export class ProductsService {
     @Inject(ProductRepository) private readonly productDB: ProductRepository,
     @Inject(OrdersRepository) private readonly orderDB: OrdersRepository,
     @InjectStripe() private readonly stripeClient: Stripe,
-  ) {}
-
+  ) {
+    cloudinary.v2.config({
+      cloud_name: envs.cloudName,
+      api_key: envs.apiKey,
+      api_secret: envs.apiSecret,
+    });
+  }
   async createProduct(createProductDto: CreateProductDto): Promise<{
     message: string;
     result: Products;
     success: boolean;
   }> {
     try {
-      //create product in stripe
+      // create a product in stripe
       if (!createProductDto.stripeProductId) {
-        const createProductIdStripe = await this.stripeClient.products.create({
+        const createdProductInStripe = await this.stripeClient.products.create({
           name: createProductDto.productName,
           description: createProductDto.description,
         });
-        createProductDto.stripeProductId = createProductIdStripe.id;
-
-        //create  a product  in db
-        const createdProductInDb =
-          await this.productDB.create(createProductDto);
-        return {
-          message: 'Product created successfully',
-          result: createdProductInDb,
-          success: true,
-        };
+        createProductDto.stripeProductId = createdProductInStripe.id;
       }
+
+      const createdProductInDB = await this.productDB.create(createProductDto);
+      return {
+        message: 'Product created successfully',
+        result: createdProductInDB,
+        success: true,
+      };
     } catch (error) {
-      throw new Error(error);
+      throw error;
     }
   }
 
@@ -95,8 +98,8 @@ export class ProductsService {
       throw error;
     }
   }
-  
-  async findOneProduct(id: string) : Promise<{
+
+  async findOneProduct(id: string): Promise<{
     message: string;
     result: { product: Products; relatedProducts: Products[] };
     success: boolean;
@@ -122,14 +125,15 @@ export class ProductsService {
     }
   }
 
-  async updateProduct(id: string,
+  async updateProduct(
+    id: string,
     updateProductDto: CreateProductDto,
   ): Promise<{
     message: string;
     result: Products;
     success: boolean;
   }> {
-   try {
+    try {
       const productExist = await this.productDB.findOne({ _id: id });
       if (!productExist) {
         throw new Error('Product does not exist');
@@ -153,7 +157,7 @@ export class ProductsService {
     }
   }
 
-  async removeProduct(id: string) : Promise<{
+  async removeProduct(id: string): Promise<{
     message: string;
     success: boolean;
     result: null;
@@ -229,7 +233,7 @@ export class ProductsService {
     }
   }
 
-  //this is for create one multiple sku for an product
+  // this is for create one or multiple sku for an product
   async updateProductSku(productId: string, data: ProductSkuDtoArr) {
     try {
       const product = await this.productDB.findOne({ _id: productId });
@@ -273,8 +277,6 @@ export class ProductsService {
     }
   }
 
-  
-  
   async updateProductSkuById(
     productId: string,
     skuId: string,
@@ -329,218 +331,247 @@ export class ProductsService {
     } catch (error) {
       throw error;
     }
-}
-
-async addProductSkuLicense(
-  productId: string,
-  skuId: string,
-  licenseKey: string,
-) {
-  try {
-    const product = await this.productDB.findOne({ _id: productId });
-    if (!product) {
-      throw new Error('Product does not exist');
-    }
-
-    const sku = product.skuDetails.find((sku) => sku._id == skuId);
-    if (!sku) {
-      throw new Error('Sku does not exist');
-    }
-
-    const result = await this.productDB.createLicense(
-      productId,
-      skuId,
-      licenseKey,
-    );
-
-    return {
-      message: 'License key added successfully',
-      success: true,
-      result: result,
-    };
-  } catch (error) {
-    throw error;
   }
-}
 
-async removeProductSkuLicense(id: string) {
-  try {
-    const result = await this.productDB.removeLicense({ _id: id });
-
-    return {
-      message: 'License key removed successfully',
-      success: true,
-      result: result,
-    };
-  } catch (error) {
-    throw error;
-  }
-}
-
-async getProductSkuLicenses(productId: string, skuId: string) {
-  try {
-    const product = await this.productDB.findOne({ _id: productId });
-    if (!product) {
-      throw new Error('Product does not exist');
-    }
-
-    const sku = product.skuDetails.find((sku) => sku._id == skuId);
-    if (!sku) {
-      throw new Error('Sku does not exist');
-    }
-
-    const result = await this.productDB.findLicense({
-      product: productId,
-      productSku: skuId,
-    });
-
-    return {
-      message: 'Licenses fetched successfully',
-      success: true,
-      result: result,
-    };
-  } catch (error) {
-    throw error;
-  }
-}
-
-async updateProductSkuLicense(
-  productId: string,
-  skuId: string,
-  licenseKeyId: string,
-  licenseKey: string,
-) {
-  try {
-    const product = await this.productDB.findOne({ _id: productId });
-    if (!product) {
-      throw new Error('Product does not exist');
-    }
-
-    const sku = product.skuDetails.find((sku) => sku._id == skuId);
-    if (!sku) {
-      throw new Error('Sku does not exist');
-    }
-
-    const result = await this.productDB.updateLicense(
-      { _id: licenseKeyId },
-      { licenseKey: licenseKey },
-    );
-
-    return {
-      message: 'License key updated successfully',
-      success: true,
-      result: result,
-    };
-  } catch (error) {
-    throw error;
-  }
-}
-async addProductReview(
-  productId: string,
-  rating: number,
-  review: string,
-  user: Record<string, any>,
-) {
-  try {
-    const product = await this.productDB.findOne({ _id: productId });
-    if (!product) {
-      throw new Error('Product does not exist');
-    }
-
-    if (
-      product.feedbackDetails.find(
-        (value: { customerId: string }) =>
-          value.customerId === user._id.toString(),
-      )
-    ) {
-      throw new BadRequestException(
-        'You have already gave the review for this product',
+  async deleteProductSkuById(id: string, skuId: string) {
+    try {
+      const productDetails = await this.productDB.findOne({ _id: id });
+      const skuDetails = productDetails.skuDetails.find(
+        (sku) => sku._id.toString() === skuId,
       );
+      await this.stripeClient.prices.update(skuDetails.stripePriceId, {
+        active: false,
+      });
+
+      // delete the sku details from product
+      await this.productDB.deleteSku(id, skuId);
+      // delete all the licences from db for that sku
+      await this.productDB.deleteAllLicences(undefined, skuId);
+
+      return {
+        message: 'Product sku details deleted successfully',
+        success: true,
+        result: {
+          id,
+          skuId,
+        },
+      };
+    } catch (error) {
+      throw error;
     }
-
-    const order = await this.orderDB.findOne({
-      customerId: user._id,
-      'orderedItems.productId': productId,
-    });
-
-    if (!order) {
-      throw new BadRequestException('You have not purchased this product');
-    }
-
-    const ratings: any[] = [];
-    product.feedbackDetails.forEach((comment: { rating: any }) =>
-      ratings.push(comment.rating),
-    );
-
-    let avgRating = String(rating);
-    if (ratings.length > 0) {
-      avgRating = (ratings.reduce((a, b) => a + b) / ratings.length).toFixed(
-        2,
-      );
-    }
-
-    const reviewDetails = {
-      rating: rating,
-      feedbackMsg: review,
-      customerId: user._id,
-      customerName: user.name,
-    };
-
-    const result = await this.productDB.findOneAndUpdate(
-      { _id: productId },
-      { $set: { avgRating }, $push: { feedbackDetails: reviewDetails } },
-    );
-
-    return {
-      message: 'Product review added successfully',
-      success: true,
-      result,
-    };
-  } catch (error) {
-    throw error;
   }
-}
 
-async removeProductReview(productId: string, reviewId: string) {
-  try {
-    const product = await this.productDB.findOne({ _id: productId });
-    if (!product) {
-      throw new Error('Product does not exist');
-    }
-
-    const review = product.feedbackDetails.find(
-      (review) => review._id == reviewId,
-    );
-    if (!review) {
-      throw new Error('Review does not exist');
-    }
-
-    const ratings: any[] = [];
-    product.feedbackDetails.forEach((comment) => {
-      if (comment._id.toString() !== reviewId) {
-        ratings.push(comment.rating);
+  async addProductSkuLicense(
+    productId: string,
+    skuId: string,
+    licenseKey: string,
+  ) {
+    try {
+      const product = await this.productDB.findOne({ _id: productId });
+      if (!product) {
+        throw new Error('Product does not exist');
       }
-    });
 
-    let avgRating = '0';
-    if (ratings.length > 0) {
-      avgRating = (ratings.reduce((a, b) => a + b) / ratings.length).toFixed(
-        2,
+      const sku = product.skuDetails.find((sku) => sku._id == skuId);
+      if (!sku) {
+        throw new Error('Sku does not exist');
+      }
+
+      const result = await this.productDB.createLicense(
+        productId,
+        skuId,
+        licenseKey,
       );
+
+      return {
+        message: 'License key added successfully',
+        success: true,
+        result: result,
+      };
+    } catch (error) {
+      throw error;
     }
-
-    const result = await this.productDB.findOneAndUpdate(
-      { _id: productId },
-      { $set: { avgRating }, $pull: { feedbackDetails: { _id: reviewId } } },
-    );
-
-    return {
-      message: 'Product review removed successfully',
-      success: true,
-      result,
-    };
-  } catch (error) {
-    throw error;
   }
-}
+
+  async removeProductSkuLicense(id: string) {
+    try {
+      const result = await this.productDB.removeLicense({ _id: id });
+
+      return {
+        message: 'License key removed successfully',
+        success: true,
+        result: result,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getProductSkuLicenses(productId: string, skuId: string) {
+    try {
+      const product = await this.productDB.findOne({ _id: productId });
+      if (!product) {
+        throw new Error('Product does not exist');
+      }
+
+      const sku = product.skuDetails.find((sku) => sku._id == skuId);
+      if (!sku) {
+        throw new Error('Sku does not exist');
+      }
+
+      const result = await this.productDB.findLicense({
+        product: productId,
+        productSku: skuId,
+      });
+
+      return {
+        message: 'Licenses fetched successfully',
+        success: true,
+        result: result,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateProductSkuLicense(
+    productId: string,
+    skuId: string,
+    licenseKeyId: string,
+    licenseKey: string,
+  ) {
+    try {
+      const product = await this.productDB.findOne({ _id: productId });
+      if (!product) {
+        throw new Error('Product does not exist');
+      }
+
+      const sku = product.skuDetails.find((sku) => sku._id == skuId);
+      if (!sku) {
+        throw new Error('Sku does not exist');
+      }
+
+      const result = await this.productDB.updateLicense(
+        { _id: licenseKeyId },
+        { licenseKey: licenseKey },
+      );
+
+      return {
+        message: 'License key updated successfully',
+        success: true,
+        result: result,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async addProductReview(
+    productId: string,
+    rating: number,
+    review: string,
+    user: Record<string, any>,
+  ) {
+    try {
+      const product = await this.productDB.findOne({ _id: productId });
+      if (!product) {
+        throw new Error('Product does not exist');
+      }
+
+      if (
+        product.feedbackDetails.find(
+          (value: { customerId: string }) =>
+            value.customerId === user._id.toString(),
+        )
+      ) {
+        throw new BadRequestException(
+          'You have already gave the review for this product',
+        );
+      }
+
+      const order = await this.orderDB.findOne({
+        customerId: user._id,
+        'orderedItems.productId': productId,
+      });
+
+      if (!order) {
+        throw new BadRequestException('You have not purchased this product');
+      }
+
+      const ratings: any[] = [];
+      product.feedbackDetails.forEach((comment: { rating: any }) =>
+        ratings.push(comment.rating),
+      );
+
+      let avgRating = String(rating);
+      if (ratings.length > 0) {
+        avgRating = (ratings.reduce((a, b) => a + b) / ratings.length).toFixed(
+          2,
+        );
+      }
+
+      const reviewDetails = {
+        rating: rating,
+        feedbackMsg: review,
+        customerId: user._id,
+        customerName: user.name,
+      };
+
+      const result = await this.productDB.findOneAndUpdate(
+        { _id: productId },
+        { $set: { avgRating }, $push: { feedbackDetails: reviewDetails } },
+      );
+
+      return {
+        message: 'Product review added successfully',
+        success: true,
+        result,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async removeProductReview(productId: string, reviewId: string) {
+    try {
+      const product = await this.productDB.findOne({ _id: productId });
+      if (!product) {
+        throw new Error('Product does not exist');
+      }
+
+      const review = product.feedbackDetails.find(
+        (review) => review._id == reviewId,
+      );
+      if (!review) {
+        throw new Error('Review does not exist');
+      }
+
+      const ratings: any[] = [];
+      product.feedbackDetails.forEach((comment) => {
+        if (comment._id.toString() !== reviewId) {
+          ratings.push(comment.rating);
+        }
+      });
+
+      let avgRating = '0';
+      if (ratings.length > 0) {
+        avgRating = (ratings.reduce((a, b) => a + b) / ratings.length).toFixed(
+          2,
+        );
+      }
+
+      const result = await this.productDB.findOneAndUpdate(
+        { _id: productId },
+        { $set: { avgRating }, $pull: { feedbackDetails: { _id: reviewId } } },
+      );
+
+      return {
+        message: 'Product review removed successfully',
+        success: true,
+        result,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
 }

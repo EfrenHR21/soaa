@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import {
   Controller,
   Get,
@@ -12,6 +11,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Put,
+  Req,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -67,13 +67,14 @@ export class ProductsController {
       },
     }),
   )
-  async uploadProductImage(@Param('id') id: string,
-  @UploadedFile() file: ParameterDecorator,
-) {
-  return await this.productsService.uploadProductImage(id, file);
-}
+  async uploadProductImage(
+    @Param('id') id: string,
+    @UploadedFile() file: ParameterDecorator,
+  ) {
+    return await this.productsService.uploadProductImage(id, file);
+  }
 
-@Post('/:productId/skus')
+  @Post('/:productId/skus')
   @Roles(userTypes.ADMIN)
   async updateProductSku(
     @Param('productId') productId: string,
@@ -85,7 +86,6 @@ export class ProductsController {
     );
   }
 
-
   @Put('/:productId/skus/:skuId')
   @Roles(userTypes.ADMIN)
   async updateProductSkuById(
@@ -94,12 +94,87 @@ export class ProductsController {
     @Body() updateProductSkuDto: ProductSkuDto,
   ) {
     return await this.productsService.updateProductSkuById(
-      productId, 
-      skuId, 
+      productId,
+      skuId,
       updateProductSkuDto,
     );
   }
-  
+
+  @Delete('/:productId/skus/:skuId')
+  @Roles(userTypes.ADMIN)
+  async deleteSkuById(
+    @Param('productId') productId: string,
+    @Param('skuId') skuId: string,
+  ) {
+    return await this.productsService.deleteProductSkuById(productId, skuId);
+  }
+
+  @Post('/:productId/skus/:skuId/licenses')
+  @Roles(userTypes.ADMIN)
+  async addProductSkuLicense(
+    @Param('productId') productId: string,
+    @Param('skuId') skuId: string,
+    @Body('licenseKey') licenseKey: string,
+  ) {
+    return await this.productsService.addProductSkuLicense(
+      productId,
+      skuId,
+      licenseKey,
+    );
+  }
+
+  @Delete('/licenses/:licenseKeyId')
+  @Roles(userTypes.ADMIN)
+  async removeProductSkuLicense(@Param('licenseKeyId') licenseId: string) {
+    return await this.productsService.removeProductSkuLicense(licenseId);
+  }
+
+  @Get('/:productId/skus/:skuId/licenses')
+  @Roles(userTypes.ADMIN)
+  async getProductSkuLicenses(
+    @Param('productId') productId: string,
+    @Param('skuId') skuId: string,
+  ) {
+    return await this.productsService.getProductSkuLicenses(productId, skuId);
+  }
+
+  @Put('/:productId/skus/:skuId/licenses/:licenseKeyId')
+  @Roles(userTypes.ADMIN)
+  async updateProductSkuLicense(
+    @Param('productId') productId: string,
+    @Param('skuId') skuId: string,
+    @Param('licenseKeyId') licenseKeyId: string,
+    @Body('licenseKey') licenseKey: string,
+  ) {
+    return await this.productsService.updateProductSkuLicense(
+      productId,
+      skuId,
+      licenseKeyId,
+      licenseKey,
+    );
+  }
+
+  @Post('/:productId/reviews')
+  @Roles(userTypes.CUSTOMER)
+  async addProductReview(
+    @Param('productId') productId: string,
+    @Body('rating') rating: number,
+    @Body('review') review: string,
+    @Req() req: any,
+  ) {
+    return await this.productsService.addProductReview(
+      productId,
+      rating,
+      review,
+      req.user,
+    );
+  }
+
+  @Delete('/:productId/reviews/:reviewId')
+  async removeProductReview(
+    @Param('productId') productId: string,
+    @Param('reviewId') reviewId: string,
+  ) {
+    return await this.productsService.removeProductReview(productId, reviewId);
+  }
 }
-
-

@@ -1,10 +1,9 @@
-/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CreateProductDto } from 'src/products/dto/create-product.dto';
 import { Products } from '../schema/products';
-import { ParsedOptions } from 'qs-to-mongo/dist/query/options-to-mongo';
+import { ParsedOptions } from 'node_modules/qs-to-mongo/dist/query/options-to-mongo';
 import { License } from '../schema/license';
 
 @Injectable()
@@ -84,7 +83,7 @@ export class ProductRepository {
     ]);
     return products;
   }
-  
+
   async createLicense(product: string, productSku: string, licenseKey: string) {
     const license = await this.licenseModel.create({
       product,
@@ -118,5 +117,22 @@ export class ProductRepository {
   async updateLicenseMany(query: any, data: any) {
     const license = await this.licenseModel.updateMany(query, data);
     return license;
+  }
+
+  async deleteSku(id: string, skuId: string) {
+    return await this.productModel.updateOne(
+      { _id: id },
+      {
+        $pull: {
+          skuDetails: { _id: skuId },
+        },
+      },
+    );
+  }
+
+  async deleteAllLicences(productId: string, skuId: string) {
+    if (productId)
+      return await this.licenseModel.deleteMany({ product: productId });
+    return await this.licenseModel.deleteMany({ productSku: skuId });
   }
 }

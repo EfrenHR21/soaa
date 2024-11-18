@@ -1,41 +1,40 @@
-/* eslint-disable prettier/prettier */
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
-export enum categoryTypes {
+export enum categoryType {
   operatingSystem = 'Operating System',
-  aplicationSoftware = 'Application Software',
+  applicationSoftware = 'Application Software',
 }
 
-export enum plataformTypes {
+export enum platformType {
   windows = 'Windows',
   mac = 'Mac',
   linux = 'Linux',
   android = 'Android',
-  ios = 'Ios',
+  ios = 'iOS',
 }
 
 export enum baseType {
   computer = 'Computer',
-  Mobile = 'Mobile',
+  mobile = 'Mobile',
 }
 
 @Schema({ timestamps: true })
-export class Feebackers extends mongoose.Document {
-  @Prop({ required: true })
+export class Feedbackers extends mongoose.Document {
+  @Prop({})
   customerId: string;
 
-  @Prop({ required: true })
+  @Prop({})
   customerName: string;
 
-  @Prop({ required: true })
+  @Prop({})
   rating: number;
 
-  @Prop({ required: true })
-  feedback: string;
+  @Prop({})
+  feedbackMsg: string;
 }
 
-export const FeebackersSchema = SchemaFactory.createForClass(Feebackers);
+export const FeedbackSchema = SchemaFactory.createForClass(Feedbackers);
 
 @Schema({ timestamps: true })
 export class SkuDetails extends mongoose.Document {
@@ -46,10 +45,10 @@ export class SkuDetails extends mongoose.Document {
   price: number;
 
   @Prop({})
-  validity: number;
+  validity: number; // in days
 
   @Prop({})
-  lifetime: number;
+  lifetime: boolean;
 
   @Prop({})
   stripePriceId: string;
@@ -70,29 +69,29 @@ export class Products {
 
   @Prop({
     default:
-      'https://thumbs.dreamstime.com/b/no-image-available-icon-flat-vector-no-image-available-icon-flat-vector-illustration-132482953.jpg',
+      'https://us.123rf.com/450wm/pavelstasevich/pavelstasevich1811/pavelstasevich181101027/112815900-no-image-available-icon-flat-vector.jpg?ver=6',
   })
   image?: string;
 
   @Prop({
     required: true,
-    enum: [categoryTypes.operatingSystem, categoryTypes.aplicationSoftware],
+    enum: [categoryType.applicationSoftware, categoryType.operatingSystem],
   })
   category: string;
 
   @Prop({
     required: true,
     enum: [
-      plataformTypes.windows,
-      plataformTypes.mac,
-      plataformTypes.linux,
-      plataformTypes.android,
-      plataformTypes.ios,
+      platformType.android,
+      platformType.ios,
+      platformType.linux,
+      platformType.mac,
+      platformType.windows,
     ],
   })
-  plataformType: string;
+  platformType: string;
 
-  @Prop({ required: true, enum: [baseType.computer, baseType.Mobile] })
+  @Prop({ required: true, enum: [baseType.computer, baseType.mobile] })
   baseType: string;
 
   @Prop({ required: true })
@@ -104,10 +103,10 @@ export class Products {
   @Prop({})
   avgRating: number;
 
-  @Prop([{ type: FeebackersSchema }])
-  feedbackDetails: Feebackers[];
+  @Prop([{ type: FeedbackSchema }])
+  feedbackDetails: Feedbackers[];
 
-  @Prop({ type: skuDetailsSchema })
+  @Prop([{ type: skuDetailsSchema }])
   skuDetails: SkuDetails[];
 
   @Prop({ type: Object })
